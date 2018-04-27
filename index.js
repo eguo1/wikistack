@@ -17,7 +17,8 @@ app.use('/user', userRoutes);
 app.use('/wiki', wikiRoutes);
 
 app.get('/', (req, res) => {
-  res.send(layout(''));
+  res.redirect('/wiki');
+
 });
 
 const init = async () => {
