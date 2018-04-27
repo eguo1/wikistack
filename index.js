@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const PORT = 1337;
 const app = express();
 const layout = require('./views/layout');
-const { db } = require('./models');
+const { Page, User, db} = require('./models/index');
 
 app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public'));  //current directory and add's /public
@@ -15,9 +15,20 @@ app.get('/', (req,res) => {
   res.send(layout(''));
 });
 
-app.listen(PORT , () => {
-  console.log(`listening to port ${PORT}`);
-});
+const init = async () => {
+  try{
+    await db.sync();
+  //  await Page.sync();
+  //  await User.sync();
+  }catch(error){
+    console.log(error);
+  }
+  app.listen(PORT , () => {
+    console.log(`listening to port ${PORT}`);
+  });
+}
+    
+init();
 
 db.authenticate().
 then(() => {
