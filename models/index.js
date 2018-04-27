@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const db = new Sequelize('postgres://localhost:5432/wikistack', {logging: false});
 
+
+
 const Page = db.define('page', {
   title: {
     type: Sequelize.STRING,
@@ -17,8 +19,13 @@ const Page = db.define('page', {
   status: {
     type: Sequelize.ENUM('open', 'closed')
   }
+}, {
+  hooks: {
+    beforeValidate: (page, options) => {
+      page.slug = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
+    }
+  }
 });
-
 const User = db.define('user', {
   name: {
     type: Sequelize.STRING,
@@ -32,6 +39,8 @@ const User = db.define('user', {
     }
   }
 });
+
+
 
 module.exports = {
   Page, User, db
