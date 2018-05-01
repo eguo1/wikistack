@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 (async () => {
   try {
-    await db.sync({ force: true });
+    await db.sync();
   } catch (error){
     console.log(error);
   }
@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
   });
 })();
 
-app.use('/user', userRoutes);
+app.use('/users', userRoutes);
 app.use('/wiki', wikiRoutes);
 
 app.get('/', (req, res) => {

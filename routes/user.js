@@ -1,12 +1,31 @@
 const express = require('express');
 const router = express.Router();
+const {Page, User} = require('../models/index');
+const userList = require('../views/userList')
+const userPage = require('../views/userPages')
 
-router.get('/', (req, res, next) => {
-  res.send(`this is a GET request to /`);
+router.get('/', async (req, res, next) => {
+  try {
+    const users = await User.findAll();
+    res.send(userList(users));
+  } catch (error) {
+    next(error);
+  }
 })
 
-router.get('/:id', (req, res, next) => {
-  res.send(`this is a GET request to ${req.params.id}`);
+router.get('/:id', async (req, res, next) => {
+  const userP = User.findById(req.params.id);
+  const pagesP = Page.findAll({
+    where: {
+      authorId: req.params.id
+    }
+  });
+  try {
+    const [user, pages] = await Promise.all([userP, pagesP])
+    res.send(userPage(user, pages));
+  } catch (error) {
+    next(error);
+  }
 })
 
 router.post('/', (req, res, next) => {

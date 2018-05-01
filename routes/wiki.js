@@ -2,17 +2,20 @@ const express = require('express');
 const router = express.Router();
 const addPage = require('../views/addPage')
 const layout = require('../views/layout');
-const {Page, User, db} = require('../models/index');
+const {Page, User} = require('../models/index');
 const wikiPage = require('../views/wikipage');
 const mainPage = require('../views/main');
 
 router.get('/', async (req, res, next) => {
-  const pages = await Page.findAll();
-  res.send(mainPage(pages));
+  try {
+    const pages = await Page.findAll();
+    res.send(mainPage(pages));
+  } catch (error) {
+    next(error);
+  }
 })
 
 router.post('/', async (req, res, next) => {
-  const page = new Page(req.body);
   try {
     const [user, wasCreated] = await User.findOrCreate({
       where: {
@@ -20,7 +23,11 @@ router.post('/', async (req, res, next) => {
         email: req.body.email
       }
     })
-    await page.save();
+    const page = await Page.create({
+      title: req.body.title,
+      content: req.body.content,
+      status: req.body.status
+    });
     page.setAuthor(user);
     res.redirect(`/wiki/${page.slug}`);
   } catch (error) {
@@ -38,10 +45,11 @@ router.get('/:slug', async (req, res, next) => {
       where: {
         slug: req.params.slug
       }
-    })
-    res.send(wikiPage(page))
+    });
+    const author = await page.getAuthor();
+    res.send(wikiPage(page, author))
   } catch (error) {
-    next(error)
+    next(error);
   }
 })
 
