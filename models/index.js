@@ -1,8 +1,6 @@
 const Sequelize = require('sequelize');
 const db = new Sequelize('postgres://localhost:5432/wikistack', {logging: false});
 
-
-
 const Page = db.define('page', {
   title: {
     type: Sequelize.STRING,
@@ -21,8 +19,8 @@ const Page = db.define('page', {
   }
 }, {
   hooks: {
-    beforeValidate: (page, options) => {
-      page.slug = page.title.replace(/\s+/g, '_').replace(/\W/g, '');
+    beforeValidate: (page) => {
+      page.slug = page.title.replace(/\s+/g, '_').replace(/\W/g, '')
     }
   }
 });
@@ -40,7 +38,8 @@ const User = db.define('user', {
   }
 });
 
-
+Page.belongsTo(User, { as: 'author' })
+User.hasMany(Page, { foreignKey: 'authorId' })
 
 module.exports = {
   Page, User, db
